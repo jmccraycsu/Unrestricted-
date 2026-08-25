@@ -1,0 +1,85 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-orchestrator"
+version = "0.1.0"
+description = "Generation service with LLM orchestration, moderation, and job queue"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.40.0",
+    "openai>=1.50.0",
+    "fastapi>=0.115.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "uvicorn[standard]>=0.30.0",
+    "httpx>=0.27.0",
+    "sqlalchemy>=2.0.35",
+    "asyncpg>=0.29.0",
+    "redis>=5.0.0",
+    # xAI Grok API client
+    "xai>=0.1.0",
+    # Ollama client for local/self-hosted models (Dolphin, etc)
+    "ollama>=0.1.0",
+    # LiteLLM for unified LLM provider interface (supports 100+ models)
+    "litellm>=1.0.0",
+    # Together AI for various open models including Dolphin variants
+    "together>=0.2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "--strict-markers -v"
+markers = [
+    "unit: unit tests",
+    "integration: integration tests requiring external services",
+    "slow: slow tests",
+]
+
+[tool.coverage.run]
+source = ["llm_orchestrator"]
+omit = [
+    "*/tests/*",
+    "*/venv/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+precision = 2
+
+[tool.black]
+line-length = 100
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_gitignore = true
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
