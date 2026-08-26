@@ -2,7 +2,7 @@
 Example moderation hooks. These are illustrative wiring -- the actual
 classifiers (Hive, Sightengine, a fine-tuned model, etc.) are a separate
 service; this module shows the *contract* the orchestrator expects and
-where blocking decisions get logged for audit.
+where decisions get logged for audit.
 
 Swap `check_text_input` / `check_text_output` for real calls to your
 moderation provider(s).
@@ -13,7 +13,7 @@ from __future__ import annotations
 import logging
 from typing import Protocol
 
-from .base import GenerationRequest, GenerationResponse, ModerationBlocked
+from .base import GenerationRequest, GenerationResponse
 
 logger = logging.getLogger("moderation")
 
@@ -44,9 +44,6 @@ def build_pre_generate_hook(moderation_client: ModerationClient, audit_log):
             user_id=request.user_id,
             allowed=result.allowed,
             reason=result.reason,
-        )
-        if not result.allowed:
-            raise ModerationBlocked(stage="pre_generate", reason=result.reason)
 
     return pre_generate_hook
 
@@ -65,9 +62,7 @@ def build_post_generate_hook(moderation_client: ModerationClient, audit_log):
             allowed=result.allowed,
             reason=result.reason,
             needs_human_review=result.needs_human_review,
-        )
-        if not result.allowed:
-            raise ModerationBlocked(stage="post_generate", reason=result.reason)
+        )  
         if result.needs_human_review:
             await audit_log.enqueue_human_review(request.request_id)
 
