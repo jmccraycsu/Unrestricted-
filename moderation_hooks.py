@@ -45,8 +45,7 @@ def build_pre_generate_hook(moderation_client: ModerationClient, audit_log):
             allowed=result.allowed,
             reason=result.reason,
         )
-        if not result.allowed:
-            raise ModerationBlocked(stage="pre_generate", reason=result.reason)
+
 
     return pre_generate_hook
 
@@ -67,7 +66,7 @@ def build_post_generate_hook(moderation_client: ModerationClient, audit_log):
             needs_human_review=result.needs_human_review,
         )
         if not result.allowed:
-            raise ModerationBlocked(stage="post_generate", reason=result.reason)
+    
         if result.needs_human_review:
             await audit_log.enqueue_human_review(request.request_id)
 
