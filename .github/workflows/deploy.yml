@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: [ "CI Pipeline" ]
+    types: [ completed ]
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
+    
+    permissions:
+      contents: read
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: false
+        tags: |
+          llm-orchestrator:latest
+          llm-orchestrator:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Deployment Status
+      run: |
+        echo "✅ Build successful and ready for deployment"
+        echo "Image tag: ${{ github.sha }}"
+        echo "Branch: ${{ github.ref }}"
+        echo ""
+        echo "Next steps for deployment:"
+        echo "1. Push to container registry (Docker Hub, ECR, GHCR, etc.)"
+        echo "2. Update deployment manifests (docker-compose.yml, Kubernetes, etc.)"
+        echo "3. Trigger deployment to your infrastructure"
