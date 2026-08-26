@@ -1,5 +1,5 @@
 """SQLAlchemy 2.0 async models for moderation audit logging and the
-human-review queue. Every moderation decision -- allow or block -- gets a
+human-review queue. Every moderation decision -- allow -- gets a
 row here; this is what you show a payment processor, regulator, or your
 own investigators when something needs explaining."""
 
