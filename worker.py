@@ -8,7 +8,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from ..base import GenerationRequest, ModerationBlocked, Provider, ProviderError
+from ..base import GenerationRequest, Provider
 from ..orchestrator import LLMOrchestrator
 from .jobs import Job, JobStatus, RedisJobQueue
 
@@ -36,12 +36,7 @@ async def process_one(queue: RedisJobQueue, orchestrator: LLMOrchestrator, job_i
 
     try:
         response = await orchestrator.generate(request)
-    except ModerationBlocked as e:
-        job.status = JobStatus.BLOCKED
-        job.error = e.reason
-    except ProviderError as e:
-        job.status = JobStatus.FAILED
-        job.error = str(e)
+        
     except Exception:
         # Never let an unexpected exception kill the worker loop -- log it,
         # record the job as failed, keep consuming.
